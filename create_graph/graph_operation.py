@@ -21,9 +21,7 @@ class GraphOp():
         b_node = nmatcher.match('车系').first()
         relation = rmatcher.match({a_node, b_node}).first()
         zz = self.graph.match((a_node,), r_type=type(relation).__name__).all()
-        result = []
-        for z in zz:
-            result.append(z.end_node.get('name'))
+        result = [z.end_node.get('name') for z in zz]
         print('大通具有：')
         print(result)
         # nodes = rmatcher.match({a_node, b_node}).all()
