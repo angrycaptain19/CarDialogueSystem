@@ -40,14 +40,9 @@ if __name__ == '__main__':
     che_xi = pd.read_csv('./data/entities/che_xi.csv')
     che_xing = pd.read_csv('./data/entities/che_xing.csv')
     # 车系和id 映射字典
-    che_xi_mapping = {}
-    for i, j in zip(che_xi['id:ID'], che_xi['name']):
-        che_xi_mapping[j] = i
+    che_xi_mapping = {j: i for i, j in zip(che_xi['id:ID'], che_xi['name'])}
     # 车型和id 映射字典
-    che_xing_mapping = {}
-    for i, j in zip(che_xing['id:ID'], che_xing['name']):
-        che_xing_mapping[j] = i
-
+    che_xing_mapping = {j: i for i, j in zip(che_xing['id:ID'], che_xing['name'])}
     # 车系和车型关系  一个车型对应一个车系id
     relationship = pd.DataFrame(columns=[':START_ID', ':END_ID', 'LINK'])
     relationship[':END_ID'] = data['车型'].map(che_xing_mapping)
@@ -68,7 +63,7 @@ if __name__ == '__main__':
 
         result.insert(1, 'name', [k] * len(result))
         result.insert(1, 'id:ID', [i for i in range(current_index, current_index + len(result))])
-        current_index = current_index + len(result)
+        current_index += len(result)
 
         # 计算 车型 和 配置 之间的关系
         result['车型'] = result['车型'].map(che_xing_mapping)

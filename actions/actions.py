@@ -70,16 +70,15 @@ from graph_database import GraphDatabase
 def date_transfer(date):
     if date is None:
         return None
+    number = re.findall(r'\d+', date)
+    if len(number) == 1 and len(number[0]) == 4:
+        return number[0]
+    elif len(number) == 1 and len(number[0]) == 2:
+        return "20" + number[0]
+    elif len(number) == 2:
+        return None
     else:
-        number = re.findall(r'\d+', date)
-        if len(number) == 1 and len(number[0]) == 4:
-            return number[0]
-        elif len(number) == 1 and len(number[0]) == 2:
-            return "20" + number[0]
-        elif len(number) == 2:
-            return None
-        else:
-            return None
+        return None
 
 
 
@@ -100,10 +99,9 @@ class ActionQuerycarseries(Action):
             answer = str(i + 1) + ": " + e['name']
             dispatcher.utter_message(template="utter_answer", answer=answer)
             car_series_list_slot.append(e['name'])
-        slots = [
+        return [
             SlotSet("listed_items", car_series_list_slot)
         ]
-        return slots
 
 
 class ActionQuerycarseries2carmodel(Action):
@@ -128,10 +126,9 @@ class ActionQuerycarseries2carmodel(Action):
             answer = str(i + 1) + ": " + e
             dispatcher.utter_message(template="utter_answer", answer=answer)
             car_model_list_slot.append(e)
-        slots = [
+        return [
             SlotSet("listed_items", car_model_list_slot)
         ]
-        return slots
 
 
 class ActionQueryattribute2carmodel(Action):
@@ -149,9 +146,7 @@ class ActionQueryattribute2carmodel(Action):
         SlotSet("car_body", None)
         SlotSet("energy_type", None)
         SlotSet("time2market", None)
-        attribute_dict = {}
-        attribute_dict['body_structure'] = car_body
-        attribute_dict['energy_type'] = energy_type
+        attribute_dict = {'body_structure': car_body, 'energy_type': energy_type}
         if time2market:
             attribute_dict['time2market'] = date_transfer(time2market)
         else:
@@ -167,10 +162,9 @@ class ActionQueryattribute2carmodel(Action):
             answer = str(i + 1) + ": " + e
             dispatcher.utter_message(template="utter_answer", answer=answer)
             car_model_list_slot.append(e)
-        slots = [
+        return [
             SlotSet("listed_items", car_model_list_slot)
         ]
-        return slots
 
 
 class ActionQuerycarmodel2attribute(Action):
@@ -186,10 +180,7 @@ class ActionQuerycarmodel2attribute(Action):
         relationship = tracker.get_slot('relationship')
         SlotSet("attribute", None)
         SlotSet("relationship", None)
-        if car_series is None:
-            dispatcher.utter_message(template="utter_not_clear")
-            return []
-        elif attribute is None and relationship is None:
+        if car_series is None or attribute is None and relationship is None:
             dispatcher.utter_message(template="utter_not_clear")
             return []
         elif attribute:
@@ -201,7 +192,7 @@ class ActionQuerycarmodel2attribute(Action):
             dispatcher.utter_message(template="utter_answer",
                                      answer=answer)
             return [SlotSet("car_series",car_series)]
-        elif relationship and attribute is None :
+        elif relationship and attribute is None:
             graph_database = GraphDatabase()
             car_model_dict = graph_database.query_entity2attribute(entity=car_series, relationship=relationship,c_attribute=None)
             answer="小通为你查询到"+car_series+"的 "
